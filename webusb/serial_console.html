@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Serial Terminal</title>
+  <style>
+    body { font-family: monospace; background: #111; color: #0f0; padding: 1em; }
+    #log { white-space: pre-wrap; border: 1px solid #0f0; padding: 10px; height: 300px; overflow-y: auto; background: #000; }
+    button { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Consola Serial Web</h2>
+  <div id="log"></div>
+  <button id="connect">Conectar Serial</button>
+
+  <script>
+    const log = document.getElementById('log');
+    const connectButton = document.getElementById('connect');
+
+    async function connectSerial() {
+      try {
+        const port = await navigator.serial.requestPort();
+        await port.open({ baudRate: 115200 });
+
+        const decoder = new TextDecoderStream();
+        port.readable.pipeTo(decoder.writable);
+        const inputStream = decoder.readable.getReader();
+
+        while (true) {
+          const { value, done } = await inputStream.read();
+          if (done) break;
+          if (value) log.textContent += value;
+          log.scrollTop = log.scrollHeight;
+        }
+
+      } catch (err) {
+        log.textContent += '\nError: ' + err + '\n';
+      }
+    }
+
+    connectButton.addEventListener('click', connectSerial);
+  </script>
+</body>
+</html>

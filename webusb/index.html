@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>MPU6050 Gyro Viewer</title>
+  <script src="https://cdn.jsdelivr.net/gh/processing-js/processing-js@master/processing.min.js"></script>
+  <style>
+    body {
+      background: #111;
+      color: #0f0;
+      font-family: monospace;
+      margin: 0;
+      padding: 1em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .viewer-container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    canvas {
+      border: 1px solid #333;
+    }
+
+    .gif-demo {
+      max-height: 360px;
+      border: 1px solid #333;
+    }
+
+    #log {
+      background: #000;
+      padding: 10px;
+      height: 150px;
+      width: 90%;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      border: 1px solid #0f0;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #0f0;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    h2 {
+      margin: 0;
+      padding: 0.5em 0;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🔁 CH552 + MPU6050 (Gyro) Viewer</h2>
+<button onclick="connectSerial()">Conectar Serial</button>
+
+<div class="viewer-container">
+  <canvas id="canvas1" width="640" height="360" data-processing-sources="gyro_model.pde"></canvas>
+  <img src="9.gif" alt="Demostración de uso" class="gif-demo">
+</div>
+
+<pre id="log"></pre>
+
+<script>
+  let sketch;
+  const log = document.getElementById('log');
+
+  async function connectSerial() {
+    try {
+      const port = await navigator.serial.requestPort();
+      await port.open({ baudRate: 115200 });
+
+      const decoder = new TextDecoderStream();
+      port.readable.pipeTo(decoder.writable);
+      const reader = decoder.readable.getReader();
+
+      sketch = Processing.getInstanceById('canvas1');
+
+      let buffer = '';
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        if (value) {
+          buffer += value;
+          const lines = buffer.split('\n');
+          buffer = lines.pop();
+
+          for (let line of lines) {
+            try {
+              const json = JSON.parse(line.trim());
+              const gxDPS = json.gyro.x / 131.0;
+              const gyDPS = json.gyro.y / 131.0;
+              const gzDPS = json.gyro.z / 131.0;
+
+              const gx = gxDPS * Math.PI / 180;
+              const gy = gyDPS * Math.PI / 180;
+              const gz = gzDPS * Math.PI / 180;
+
+              if (sketch && sketch.updateGyro) {
+                sketch.updateGyro(gx, gy, gz);
+              }
+
+              log.textContent = `Gyro: x=${gxDPS.toFixed(2)}°/s y=${gyDPS.toFixed(2)}°/s z=${gzDPS.toFixed(2)}°/s\n` + log.textContent;
+              log.scrollTop = 0;
+            } catch (e) {
+              console.warn("❌ Línea no válida:", line);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      log.textContent += '\n❌ Error: ' + err.message + '\n';
+    }
+  }
+</script>
+
+</body>
+</html>
