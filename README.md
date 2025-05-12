@@ -1,8 +1,7 @@
 # MPU6050 Module I2C Example with CH552 + WebSerial
 
-This project demonstrates how to read motion data from the MPU6050 sensor using I2C on a CH552 microcontroller, and visualize it in real-time via WebSerial in a browser using Processing.js.
+This project demonstrates how to read motion data from the MPU6050 sensor using I2C on a CH552 microcontroller, and visualize it in real-time via WebSerial in a browser using Processing.js
 
----
 
 ## 🧰 Hardware Required
 
@@ -10,9 +9,7 @@ This project demonstrates how to read motion data from the MPU6050 sensor using 
 * MPU6050 6-axis sensor (I2C)
 * USB connection to host PC
 
----
-
-## 🔧 Compile and Flash Firmware
+---## 🔧 Compile and Flash Firmware
 
 This example uses an I2C bit-banging implementation and outputs sensor data as JSON via USB-CDC:
 
@@ -24,7 +21,6 @@ make flash
 
 > Requires SDCC toolchain and `chprog.py` installed.
 
----
 
 ## 🖥️ Linux Setup for USB CDC Devices
 
@@ -46,7 +42,7 @@ Then reload udev:
 sudo udevadm control --reload-rules
 ```
 
----
+
 
 ## 📦 Project Layout
 
@@ -64,7 +60,7 @@ sudo udevadm control --reload-rules
 └── venv/                # Optional Python environment
 ```
 
----
+
 
 ## 🌐 Live Visualization (GitHub Pages)
 
@@ -83,7 +79,6 @@ Files:
 * `gyro_model.pde`: Airplane 3D sketch (Processing.js)
 * `9.gif`, `11.gif`: Visual demos
 
----
 
 ## 🧪 Test via Serial
 
@@ -100,7 +95,6 @@ picocom /dev/ttyACM1 -b 115200
 ```
 
 ---
-
 ## ⚖️ Licensing
 
 * **Firmware**: MIT License
