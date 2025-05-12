@@ -9,7 +9,7 @@ This project demonstrates how to read motion data from the MPU6050 sensor using 
 * MPU6050 6-axis sensor (I2C)
 * USB connection to host PC
 
----## 🔧 Compile and Flash Firmware
+## 🔧 Compile and Flash Firmware
 
 This example uses an I2C bit-banging implementation and outputs sensor data as JSON via USB-CDC:
 
